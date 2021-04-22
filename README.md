@@ -11,7 +11,7 @@ This python script ignores 'bumped' sales posts and only updates the user with t
 matter where the new listings were created (the dates are ignored).
 
 ###### Screenshot of a notification from the Gmail app.
-![alt text](https://i.imgur.com/VKTFzLL.png)
+![alt text](https://i.imgur.com/6ZE6z89.jpg)
 
 ## Technologies
 Technologies used for this project:
