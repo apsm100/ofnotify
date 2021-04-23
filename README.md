@@ -8,13 +8,13 @@ ofnotify notifies you of new private sales listing posts from Omega Forums.
 
 ## General Info
 ### The Problem
-Omega Forums uses a forum moderated private sales system where sellers can 'bump' their sales listing once per day forever.
-The top-most listing is not the newest as a result, and because moderation can take hours to days, new listings can sometimes
-fall near the bottom of the sales list. 
+Omega Forums has a private sales forum which is moderated where. Sellers can 'bump' their sales listing once per day forever, 
+or until their watch sells. As a result, the top-most listing is not always the newest. New sales postings can take a few hours to
+be approved by the moderators, hence new listings can sometimes fall near the middle or bottom of the sales list. 
 
 ### The Solution
-This python script ignores 'bumped' sales posts and only updates the user with the newly approved sales posts. It does not 
-matter when the new listings were created (the dates are ignored).
+This python script ignores 'bumped' sales listings and only updates the user with the newly approved sales listings. It does not 
+matter when the new listings were originally posted for moderation (the dates are ignored).
 
 ###### Screenshot of a notification from the Gmail app.
 ![alt text](https://i.imgur.com/6ZE6z89.jpg)
