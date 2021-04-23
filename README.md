@@ -17,7 +17,7 @@ This python script ignores 'bumped' sales listings and only updates the user wit
 matter when the new listings were originally posted for moderation (the dates are ignored).
 
 ###### Screenshot of a notification from the Gmail app.
-![alt text](https://i.imgur.com/6ZE6z89.jpg)
+![alt text](https://i.imgur.com/ON67zc3.png)
 
 ## Technologies
 Technologies used for this project:
