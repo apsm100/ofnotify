@@ -13,10 +13,10 @@ fall near the bottom of the sales list.
 
 ### The Solution
 This python script ignores 'bumped' sales posts and only updates the user with the newly approved sales posts. It does not 
-matter where the new listings were created (the dates are ignored).
+matter when the new listings were created (the dates are ignored).
 
-![alt text](https://i.imgur.com/6ZE6z89.jpg)
 ###### Screenshot of a notification from the Gmail app.
+![alt text](https://i.imgur.com/6ZE6z89.jpg)
 
 ## Technologies
 Technologies used for this project:
