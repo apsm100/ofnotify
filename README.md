@@ -8,7 +8,7 @@ ofnotify notifies you of new private sales listing posts from Omega Forums.
 
 ## General Info
 ### The Problem
-Omega Forums has a private sales forum which is moderated where. Sellers can 'bump' their sales listing once per day forever, 
+Omega Forums has a private sales forum which is moderated; sellers can 'bump' their sales listing once per day forever, 
 or until their watch sells. As a result, the top-most listing is not always the newest. New sales postings can take a few hours to
 be approved by the moderators, hence new listings can sometimes fall near the middle or bottom of the sales list. 
 
