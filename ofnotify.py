@@ -15,7 +15,6 @@ password = ""
 
 def main():
     """Main drives the program.
-    
     Uses Beautifulsoup to scrape zero post listings from the 
     OF sales forum, extract their IDs, compares the IDs with a stored ID list (last run), 
     notifies the user of new posts via email, and outputs the current ID list to a json. 
@@ -118,7 +117,6 @@ def sendNotification(final_link_list, final_title_list, new_id_list):
         # Variables for email.
         title = final_title_list[i]
         url = "https://omegaforums.net/" + final_link_list[i]
-
         image_link = getImage(url)
         # If an image is not available, hide it and adjust the view. 
         if image_link:
@@ -164,17 +162,17 @@ def sendNotification(final_link_list, final_title_list, new_id_list):
     sendEmail(html)
 
 def getImage(url):
-    """Gets and returns the imagetitle at the specified url.
-    There are a few methods of uploading a photo to OF, the following three
+    """Gets and returns the image_link at the specified url.
+    There are a few methods of uploading a photo to OF, the following two
     cover the methods observed."""
     page = requests.get(url)
     soup = BeautifulSoup(page.content, 'html.parser')
     # If photo was attached via OF server.
-    messageContent = soup.find("div", {"class": "messageContent"})
-    image = messageContent.find('img', {"loading": "lazy"})
-    # If photo was hypertitleed.
+    message_content = soup.find("div", {"class": "messageContent"})
+    image = message_content.find('img', {"loading": "lazy"})
+    # If photo was hyperlinked.
     if not image:
-        image = messageContent.find('img', {"class": "bbCodeImage LbImage"})
+        image = message_content.find('img', {"class": "bbCodeImage LbImage"})
     # If an image was found create a title.
     if image:
         image_link = "https://omegaforums.net/" + image['src']
