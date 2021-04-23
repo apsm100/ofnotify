@@ -5,7 +5,7 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 import json
 import re
-version = "1.3-8"
+version = "1.0"
 print("ofnotify v" + version + "\nAmrit Manhas")
 
 # Email configuration (set to Outlook by default).
