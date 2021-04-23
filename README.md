@@ -24,6 +24,11 @@ Technologies used for this project:
 * BeautifulSoup
 * JSON
 
+### Setup
+Modify the email and password variables to enable notifications by email. If this is left null the output will be sent to output.html.
+This script will work the best if run at a 1-10 minute interval.
+Windows task scheduler can be used to run a .bat which runs the python script.
+
 ## Content
 Content of the project folder:
 
