@@ -79,7 +79,7 @@ def compareLists(link_list, title_list, index_list):
         with open('id.json') as f:
             old_id_list = json.load(f)
     except:
-        old_id_list = ["85119"] # This ID is ignored; pinned post ID.
+        old_id_list = [85119] # This ID is ignored; pinned post ID.
     new_link_list = []
     new_title_list = []
     # Use index_list to create zero-post only lists.
@@ -91,7 +91,7 @@ def compareLists(link_list, title_list, index_list):
     new_index_list = []
     for i in new_link_list:
         result = re.search('\.(.*?)/', i)
-        new_id_list.append(result.group(1))
+        new_id_list.append(int(result.group(1)))
     # Compare new_id_list with old_id_list and append new listing indexes to new_index_list.
     for i in new_id_list:
         if i not in old_id_list:
