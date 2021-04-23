@@ -26,9 +26,12 @@ Technologies used for this project:
 * JSON
 
 ## Setup
-Modify the email and password variables to enable notifications by email. If this is left null the output will be sent to output.html.      
-On first run, the script will load in all the zero-post listings, so expect a notification that has all the zero-post listings.      
-After this point, the script will only send when a notification when a new listing appears in the list.     
+Modify the email and password variables to enable notifications by email. If this is left null the output will be sent to output.html. 
+  
+On first run, the script will load in all the zero-post listings, so expect a notification that has all the zero-post listings.  
+  
+After this point, the script will only send a notification when a new listing appears in the list.  
+  
 This script will work the best if run at a 1-10 minute interval, as it uses zero-posts as an indicator of a new listing.      
 Windows Task Scheduler can be used to run a .bat which runs the python script.
 
