@@ -72,8 +72,8 @@ def getLists(soup):
 
 def compareLists(link_list, title_list, index_list):
     """Creates a new link and titles list of zero post listings 
-    using index_list. A new id list is created and is compared with the old id list.
-    ID's are used here as links and titles can change, but listing id's will never change.
+    using index_list. A new ID list is created and is compared with the old ID list.
+    IDs are used here as links and titles can change, but listing IDs will never change.
     Return new items in new lists."""
     # Check for saved id.json and load for comparison. 
     try:
