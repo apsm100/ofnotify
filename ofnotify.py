@@ -177,13 +177,13 @@ def getImage(url):
         image = messageContent.find('img', {"class": "bbCodeImage LbImage"})
     # If an image was found create a title.
     if image:
-        imagetitle = "https://omegaforums.net/" + image['src']
+        image_link = "https://omegaforums.net/" + image['src']
     else:
-        imagetitle = ""
-    return imagetitle
+        image_link = ""
+    return image_link
 
 def sendEmail(html):
-    """Sends an html email to the specified username and email
+    """Sends a HTML email to the specified username and email
     using the email and password specified."""
     # If email is not configured, output to output.html.
     if email == "" or password == "":
