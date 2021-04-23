@@ -5,22 +5,21 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 import json
 import re
-version = "1.3-6"
+version = "1.3-7"
 print("ofnotify v" + version + "\nAmrit Manhas")
 
-"""ofnotify
-amrit manhas
-Uses Beautifulsoup to scrape 0 post count listings from the 
-OF sales forum and notifies the user of new posts via email.
-"""
-# Email config (set to outlook\hotmail)
+# Email configuration (set to outlook\hotmail).
 # Input your own email and password, this script will send it from yourself.
 email = ""
 password = ""
 
-#Main 
-#Drives the program.
 def main():
+    """Main drives the program.
+    
+    Uses Beautifulsoup to scrape zero post listings from the 
+    OF sales forum, extract their id's, compares the id's with a stored id list (last run), 
+    notifies the user of new posts via email, and outputs the current id list to a json. 
+    """
     soup = getSoup()
     title_list, link_list, index_list = getLists(soup)
     final_title, final_link, new_id_list = compareLists(title_list, link_list, index_list)
@@ -36,6 +35,7 @@ def main():
     dumpList(new_id_list)
 
 def getSoup():
+    """Checks if OF is available and returns soup."""
     try:
         page = requests.get("https://omegaforums.net/forums/private-watch-sales/", timeout=10.0)
     except:
@@ -45,7 +45,8 @@ def getSoup():
     return soup
 
 def getLists(soup):
-    # Find listing titles and links.
+    """Scrapes the html for titles and links and returns 
+    a list of titles, a list of links, and a list of indexes where a listing has zero posts."""
     title_list = []
     link_list = []
     links = soup.find_all(href=True)  # Get all href elements.
@@ -54,42 +55,46 @@ def getLists(soup):
             title_list.append(i['href'])
             link_list.append(i.string)
 
-    # post_list finds just the post numbers, below will find the zero post indexes.
+    # post_list finds just the post count, index_list will hold the zero post indexes.
     post_list = soup.find_all('dl', class_="major")
-    index_list = []  # List of indexes for 0 post items.
+    index_list = []  # List of indexes for zero post listings.
     index_count = -1  # Used for items in index_list.
     for i in post_list:
         item = i.find_all('dd')
         for v in item:
             index_count = index_count + 1
-            if v.contents == ['0']: # Check contents for 0
+            if v.contents == ['0']: # If the listing has zero posts.
                 index_list.append(index_count)
     return title_list, link_list, index_list
 
 def compareLists(title_list, link_list, index_list):
-    # Check for saved files and load them into old title, old link, and old id variables.
+    """Creates a new title and links list of zero post listings 
+    using index_list. A new id list is created and is compared with the old id list.
+    ID's are used here as titles and links can change, but listing id's will never change.
+    Return new items in new lists."""
+    # Check for saved id.json and load for comparison. 
     try:
         with open('id.json') as f:
             old_id_list = json.load(f)
     except:
         old_id_list = []
 
-    #   Create index comparison lists.
     new_title_list = []
     new_link_list = []
 
+    # Use index_list to create zero-post only lists.
     for i in index_list:
         new_title_list.append(title_list[i])
         new_link_list.append(link_list[i])
 
-    # Create new ID list by using new title list urls.
+    # Create a new_id_list by using new_title_list urls.
     new_id_list = []
     new_index_list = []
     for i in new_title_list:
         result = re.search('\.(.*?)/', i)
         new_id_list.append(result.group(1))
 
-    # Compare new id list with old id list and append new item indices to new index list.
+    # Compare new_id_list with old_id_list and append new listing indexes to new_index_list.
     for i in new_id_list:
         if i not in old_id_list:
             new_index_list.append(new_id_list.index(i))
@@ -97,14 +102,15 @@ def compareLists(title_list, link_list, index_list):
     final_title = []
     final_link = []
 
-    # Use the new index list indices to create final title and link lists for notification.
+    # Use new_index_list indexes to create final_title and final_link.
     for i in new_index_list:
         final_title.append(new_title_list[int(i)])
         final_link.append(new_link_list[int(i)])
     return final_title, final_link, new_id_list
 
 def sendNotification(final_title, final_link, new_id_list):
-    # the notification is created and sent.
+    """Creates and sends the html notification.
+    The listing photos are added if possible."""
     html_list = []
     difference = len(final_title)
     index_range = range(0, difference)
@@ -118,14 +124,20 @@ def sendNotification(final_title, final_link, new_id_list):
         nam = final_link[i]
         url = "https://omegaforums.net/" + final_title[i]
 
-        imageLink, display, em = getImage(url)
-
-        #styling the email
+        imageLink = getImage(url)
+        # If an image is not available, hide it and adjust the view. 
+        if imageLink:
+            display = ""
+            em = 0
+        else:
+            display = "display:none;"
+            em = 1
+        # The first item in the list has no margin-top.
         if i == 0:
             em2 = 0
         else:
             em2 = 1
-
+        # Hide the border on the last item.     
         if i == difference - 1:
             border = "display:none;"
         else:
@@ -155,11 +167,12 @@ def sendNotification(final_title, final_link, new_id_list):
                 <footer style="margin-top:3em;color:gainsboro;text-align:center;font-size:60%;">ofnotify v{versionnum}</footer>
             </body>
     </html>""".format(**locals())
-    
     sendEmail(html)
 
 def getImage(url):
-    # Scrape first image of the listing.
+    """Gets and returns the imageLink at the specified url.
+    There are a few methods of uploading a photo to OF, the following three
+    cover the methods observed."""
     page = requests.get(url)
     soup = BeautifulSoup(page.content, 'html.parser')
 
@@ -170,19 +183,17 @@ def getImage(url):
     # If photo was hyperlinked.
     if not image:
         image = messageContent.find('img', {"class": "bbCodeImage LbImage"})
-
-    # If photo cannot be scraped then hide img in html and reorganize to fit.
+    
+    # If an image was found create a link.
     if image:
         imageLink = "https://omegaforums.net/" + image['src']
-        display = ""
-        em = 0
     else:
         imageLink = ""
-        display = "display:none;"
-        em = 1
-    return imageLink, display, em
+    return imageLink
 
 def sendEmail(html):
+    """Sends an html email to the specified username and email
+    using the email and password specified."""
     # If email is not configured, output to output.html.
     if email == "" or password == "":
         print("\nEmail not configured.")
@@ -196,23 +207,19 @@ def sendEmail(html):
         msg['Subject'] = "Notification"
         msg['From'] = email
         msg['To'] = email
-
         part1 = MIMEText(html, 'html')
-
         msg.attach(part1)
         mail = smtplib.SMTP('smtp-mail.outlook.com', 587)
-
         mail.ehlo()
-
         mail.starttls()
-
         mail.login(email, password)
         mail.sendmail(email, email, msg.as_string())
         mail.quit()
-
         print('\nNotification sent.')
 
 def dumpList(new_id_list):
+    """Dumps the new_id_list to a json file
+    for the next run. Ignore if new_id_list is null."""
     # Dump new list created.
     if new_id_list:
         with open('id.json', 'w') as f:
