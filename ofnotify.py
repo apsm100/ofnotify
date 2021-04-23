@@ -20,13 +20,13 @@ def main():
     notifies the user of new posts via email, and outputs the current ID list to a json. 
     """
     soup = getSoup()
-    # link_list - list of listing links.
-    # title_list - list of listing titles.
+    # link_list - list of all listing links on OF's first page.
+    # title_list - list of all listing titles on OF's first page.
     # index_list - list of indexes where the listing post count is zero.
     link_list, title_list, index_list = getLists(soup)
-    #final_link_list - list of listing links after comparison.
-    #final_title_list - list of listing titles after comparison.
-    #new_id_list - list of listing IDs derived from the final_link_list. 
+    #new_id_list - list of listing IDs derived from new_title_list(from index_list).
+    #final_link_list - list of listing links after comparison with new_id_list and old_id_list.
+    #final_title_list - list of listing titles after comparison with new_id_list and old_id_list.
     final_link_list, final_title_list, new_id_list = compareLists(link_list, title_list, index_list)
     if final_link_list:
         print('\nNew items found:')
@@ -48,7 +48,7 @@ def getSoup():
     return soup
 
 def getLists(soup):
-    """Scrapes the html for links and titles and returns 
+    """Scrapes the HTML for links and titles and returns 
     a list of links, a list of titles, and a list of indexes where a listing has zero posts."""
     link_list = []
     title_list = []
