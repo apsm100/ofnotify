@@ -34,7 +34,6 @@ Windows task scheduler can be used to run a .bat which runs the python script.
 Content of the project folder:
 
 ```
- Top level of project folder:
-├── ofnotify.py                # Main Python script
-├── id.json                    # ID json
+ Project folder:
+├── ofnotify.py                # Main script
 └── README.md                  # Read Me
