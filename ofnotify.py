@@ -80,7 +80,7 @@ def compareLists(link_list, title_list, index_list):
         with open('id.json') as f:
             old_id_list = json.load(f)
     except:
-        old_id_list = []
+        old_id_list = ["85119"] # This ID is ignored; pinned post ID.
     new_link_list = []
     new_title_list = []
     # Use index_list to create zero-post only lists.
