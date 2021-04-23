@@ -85,7 +85,7 @@ for i in new_index_list:
     final_link.append(new_link_list[int(i)])
 
 # If final title has items, the notification is created and sent.
-all_title_link = []
+html_list = []
 if final_title:
     print('\nNew items found:')
     print(final_link)
@@ -134,9 +134,9 @@ if final_title:
             border = ""
         
         html_list_item = """<div style="margin-top:0.5em;margin-bottom:0.5em;"><a href="{url}" style="text-decoration:none;"><img src="{imageLink}" style="{display}object-fit:cover;width:100%;max-height:330px;border-radius:18px;margin-top:0.5em;margin-bottom:1em;"><h3 style="margin-top:{em}em; margin-bottom:{em}em;color:#000000;padding-left:6px;padding-right:6px;">{nam}</h3></a></div><div style="{border}margin-bottom:2em;margin-top:2em;height:1px;width:100%;background-color:gainsboro;"></div>""".format(**locals())
-        all_title_link.append(html_list_item)
+        html_list.append(html_list_item)
         
-        body = '\n'.join(all_title_link)
+        body = '\n'.join(html_list)
 
     if difference > 1:  # Plurality or not.
         period = "s"
@@ -162,7 +162,7 @@ if final_title:
     # Send the message via local SMTP server.
     # If email is not configured, output to output.html.
     if email == "" or password == "":
-        print("Email not configured.")
+        print("\nEmail not configured.")
         f = open("output.html", "w")
         f.write(html)
         f.close()
