@@ -250,7 +250,6 @@ def sendEmail(html):
     if args.noemail:
         outputHTML(html)
         return
-
     # If email is not configured, output to output.html.
     if email == "" or password == "":
         print("\nemail not configured.")
@@ -272,6 +271,7 @@ def sendEmail(html):
         print('\nnotification sent.')
 
 def outputHTML(html):
+    """Outputs HTML to output.html"""
     f = open("output.html", "w")
     f.write(html)
     f.close()
@@ -287,5 +287,4 @@ def dumpList(new_id_list):
 
 if __name__ == "__main__":
     main()
-
-
+    
