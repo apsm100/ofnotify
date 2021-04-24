@@ -5,9 +5,29 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 import json
 import re
+import argparse
 
 version = "1.0"
-print("ofnotify v" + version + "\nAmrit Manhas")
+print("ofnotify v" + version + " - amrit manhas @apsm100")
+
+"""Command Line Arguments"""
+parser = argparse.ArgumentParser()
+parser.add_argument("--noimage", help="no images in notification",
+                    action="store_true")
+parser.add_argument("--noemail", help="no email will be sent",
+                    action="store_true")
+parser.add_argument("--noradius", help="no image border radius",
+                    action="store_true")
+args = parser.parse_args()
+arguments = ""
+if args.noimage:
+    arguments = arguments + "--noimage "
+if args.noemail:
+    arguments = arguments + "--noemail "
+if args.noradius:
+    arguments = arguments + "--noradius "
+if arguments:
+    print("arguments: "  +  arguments)
 
 # Email configuration (set to Outlook by default).
 # Input your own email and password, this script will send it from yourself.
@@ -33,12 +53,12 @@ def notify(soup):
     #final_title_list - list of listing titles after comparison with new_id_list and old_id_list.
     final_link_list, final_title_list, new_id_list = compareLists(link_list, title_list, index_list)
     if final_link_list:
-        print('\nNew items found:')
+        print('\nnew listings found:')
         print(final_title_list)
         print(final_link_list)
         sendNotification(final_link_list, final_title_list, new_id_list)
     else:
-        print('\nNothing to tell you.')
+        print('\nnothing to tell you.')
     dumpList(new_id_list)
 
 def getSoup(url):
@@ -46,7 +66,7 @@ def getSoup(url):
     try:
         page = requests.get(url, timeout=10.0)
     except Exception as inst:
-        print("\nAn error occured, scrape incomplete.")
+        print("\nan error occured, scrape incomplete.")
         print(inst)
         exit()
     soup = BeautifulSoup(page.content, 'html.parser')
@@ -122,8 +142,10 @@ def sendNotification(final_link_list, final_title_list, new_id_list):
         # Variables for email.
         title = final_title_list[i]
         link = "https://omegaforums.net/" + final_link_list[i]
-        image_link = getImage(link)
-        # If an image is not available, hide it and adjust the view. 
+        image_link = ""
+        if not args.noimage:
+            image_link = getImage(link)
+        # If an image is not available, or disabled, hide it and adjust the view. 
         if image_link:
             image_display = ""
             em = 0
@@ -147,8 +169,11 @@ def sendNotification(final_link_list, final_title_list, new_id_list):
 
 def createHTMLListItem(link, image_link, image_display, em, title, border_display):
     """Creates a list item in HTML"""
+    image_radius = 18
+    if args.noradius:
+        image_radius = 0
     html_list_item = """<div style="margin-top:0.5em;margin-bottom:0.5em;"><a href="{link}" style="text-decoration:none;">
-    <img src="{image_link}" style="{image_display}object-fit:cover;width:100%;max-height:330px;border-radius:18px;margin-top:0.5em;margin-bottom:1em;">
+    <img src="{image_link}" style="{image_display}object-fit:cover;width:100%;max-height:330px;border-radius:{image_radius}px;margin-top:0.5em;margin-bottom:1em;">
     <h3 style="margin-top:{em}em; margin-bottom:{em}em;color:#000000;padding-left:6px;padding-right:6px;">{title}</h3></a></div>
     <div style="{border_display}margin-bottom:2em;margin-top:2em;height:1px;width:100%;background-color:gainsboro;"></div>""".format(**locals())
     return html_list_item
@@ -211,13 +236,15 @@ def getImage(url):
 def sendEmail(html):
     """Sends a HTML email to the specified username and email
     using the email and password specified."""
+    # If email is disabled.
+    if args.noemail:
+        outputHTML(html)
+        return
+
     # If email is not configured, output to output.html.
     if email == "" or password == "":
-        print("\nEmail not configured.")
-        f = open("output.html", "w")
-        f.write(html)
-        f.close()
-        print("Output sent to output.html.")
+        print("\nemail not configured.")
+        outputHTML(html)
     else:
         # Send the message via local SMTP server.
         msg = MIMEMultipart('alternative')
@@ -232,7 +259,13 @@ def sendEmail(html):
         mail.login(email, password)
         mail.sendmail(email, email, msg.as_string())
         mail.quit()
-        print('\nNotification sent.')
+        print('\nnotification sent.')
+
+def outputHTML(html):
+    f = open("output.html", "w")
+    f.write(html)
+    f.close()
+    print("\noutput sent to output.html.")
 
 def dumpList(new_id_list):
     """Dumps the new_id_list to a json file
@@ -244,3 +277,5 @@ def dumpList(new_id_list):
 
 if __name__ == "__main__":
     main()
+
+
