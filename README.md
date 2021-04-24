@@ -37,8 +37,8 @@ Windows Task Scheduler can be used to run a .bat which runs the python script.
 
 ## Command Line Arguments
 
-*--noradius* : Removes the image radius in notifications.  
-*--noimage* : Disables imaages in notifications.  
+*--noradius* : Disables image radius in notifications.  
+*--noimage* : Disables images in notifications.  
 *--noemail* : Disables the email function.  
 
 ## Content
