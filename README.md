@@ -35,6 +35,12 @@ After this point, the script will only send a notification when a new listing ap
 This script will work the best if run at a 1-10 minute interval, as it uses zero-posts as an indicator of a new listing.      
 Windows Task Scheduler can be used to run a .bat which runs the python script.
 
+## Command Line Arguments
+
+*--noradius* : Removes the image radius in notifications.  
+*--noimage* : Disables imaages in notifications.  
+*--noemail* : Disables the email function.  
+
 ## Content
 Content of the project folder:
 
