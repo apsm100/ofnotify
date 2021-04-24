@@ -23,6 +23,8 @@ parser.add_argument("--noemail", help="no email will be sent",
                     action="store_true")
 parser.add_argument("--noradius", help="no image border radius",
                     action="store_true")
+parser.add_argument("--sendall", help="send all zero-post listings",
+                    action="store_true")
 args = parser.parse_args()
 arguments = ""
 if args.noimage:
@@ -31,6 +33,8 @@ if args.noemail:
     arguments = arguments + "--noemail "
 if args.noradius:
     arguments = arguments + "--noradius "
+if args.sendall:
+    arguments = arguments + "--sendall "
 if arguments:
     print("arguments: "  +  arguments)
 
@@ -53,7 +57,10 @@ def notify(soup):
     #final_title_list - list of listing titles after comparison with new_id_list and old_id_list.
     final_link_list, final_title_list, new_id_list = compareLists(link_list, title_list, index_list)
     if final_link_list:
-        print('\nnew listings found:')
+        if args.sendall:
+             print('\nall zero-post listings [' + str(len(final_link_list)) + ']:')
+        else:
+             print('\nnew listings found [' + str(len(final_link_list)) + ']:')
         print(final_title_list)
         print(final_link_list)
         sendNotification(final_link_list, final_title_list, new_id_list)
@@ -105,6 +112,9 @@ def compareLists(link_list, title_list, index_list):
             old_id_list = json.load(f)
     except:
         old_id_list = [85119] # This ID is ignored; pinned post ID.
+    # If send all is enabled.
+    if args.sendall:
+        old_id_list = [85119]
     new_link_list = []
     new_title_list = []
     # Use index_list to create zero-post only lists.
