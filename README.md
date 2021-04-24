@@ -4,6 +4,7 @@ ofnotify notifies you of new private sales listing posts from Omega Forums.
 * [General info](#general-info)
 * [Technologies](#technologies)
 * [Setup](#setup)
+* [Command Line Arguments](#command-line-arguments)
 * [Contents](#content)
 
 ## General Info
