@@ -10,6 +10,11 @@ import argparse
 version = "1.0"
 print("ofnotify v" + version + " - amrit manhas @apsm100")
 
+# Email configuration (set to Outlook by default; ex. "hello@outlook.com").
+# Input your own email and password, this script will send it from yourself.
+email = ""
+password = ""
+
 """Command Line Arguments"""
 parser = argparse.ArgumentParser()
 parser.add_argument("--noimage", help="no images in notification",
@@ -28,11 +33,6 @@ if args.noradius:
     arguments = arguments + "--noradius "
 if arguments:
     print("arguments: "  +  arguments)
-
-# Email configuration (set to Outlook by default).
-# Input your own email and password, this script will send it from yourself.
-email = ""
-password = ""
 
 def main():
     """Main drives the program."""
