@@ -6,6 +6,7 @@ from email.mime.text import MIMEText
 import json
 import re
 import argparse
+import datetime
 
 version = "1.0"
 print("ofnotify v" + version + " - amrit manhas @apsm100")
@@ -64,8 +65,10 @@ def notify(soup):
         print(final_title_list)
         print(final_link_list)
         sendNotification(final_link_list, final_title_list, new_id_list)
+        log(new_id_list, True)
     else:
         print('\nnothing to tell you.')
+        log(new_id_list, False)
     dumpList(new_id_list)
 
 def getSoup(url):
@@ -284,6 +287,12 @@ def dumpList(new_id_list):
     if new_id_list:
         with open('id.json', 'w') as f:
             json.dump(new_id_list, f)
+
+def log(id_list, isNew):
+    x = datetime.datetime.now()
+    f = open("log.txt", "a")
+    date_time = x.strftime("%m/%d/%Y, %H:%M:%S")
+    f.write(date_time + " - " + str(id_list) + " new_items = " + str(isNew) + "\n")
 
 if __name__ == "__main__":
     main()
