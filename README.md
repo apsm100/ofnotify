@@ -24,7 +24,8 @@ matter when the new listings were originally posted for moderation (the dates ar
 Technologies used for this project:
 * Python
 * BeautifulSoup
-* JSON
+* MongoDB (private)
+* Heroku (private)
 
 ## Setup
 Modify the email and password variables to enable notifications by email. If this is left null the output will be sent to output.html. 
@@ -34,7 +35,7 @@ On first run, the script will load in all the zero-post listings, so expect a no
 After this point, the script will only send a notification when a new listing appears in the list.  
   
 This script will work the best if run at a 1-10 minute interval, as it uses zero-posts as an indicator of a new listing.      
-Windows Task Scheduler can be used to run a .bat which runs the python script.
+The script is hosted on Heroku and uses MongoDB to store the listings. 
 
 ## Command Line Arguments
 
