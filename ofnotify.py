@@ -276,14 +276,14 @@ def sendEmail(html):
         msg = MIMEMultipart('alternative')
         msg['Subject'] = "Notification"
         msg['From'] = email
-        msg['To'] = "amritmanhas11@gmail.com"
+        msg['To'] = email
         part1 = MIMEText(html, 'html')
         msg.attach(part1)
         mail = smtplib.SMTP('smtp-mail.outlook.com', 587)
         mail.ehlo()
         mail.starttls()
         mail.login(email, password)
-        mail.sendmail(email, "amritmanhas11@gmail.com", msg.as_string())
+        mail.sendmail(email, email, msg.as_string())
         mail.quit()
         print('\nnotification sent.')
 
