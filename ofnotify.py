@@ -7,14 +7,30 @@ import json
 import re
 import argparse
 import datetime
+import pymongo
+from pymongo import MongoClient
+from bson.objectid import ObjectId
 
-version = "1.0"
+# MongoDB connection; redacted for gitHub.
+# Use version 1.0 for local use. 
+client = pymongo.MongoClient("mongodb+srv://hidden")
+db = client.ofnotify
+mycol = db["data"]
+mongo_id = "listings"
+
+version = "1.1b"
 print("ofnotify v" + version + " - amrit manhas @apsm100")
 
 # Email configuration (set to Outlook by default; ex. "hello@outlook.com").
 # Input your own email and password, this script will send it from yourself.
 email = ""
 password = ""
+
+# Post object that has a title and link; the post id is extracted from the url.
+class Post:
+  def __init__(self, title, link):
+    self.title = title
+    self.link = link
 
 """Command Line Arguments"""
 parser = argparse.ArgumentParser()
@@ -45,30 +61,38 @@ def main():
     soup = getSoup(url)
     notify(soup)
 
+def getDBList():
+    """Gets the old id list from the DB"""
+    col = mycol.find_one({'_id':mongo_id})
+    old_id_list = col['idList']
+    if args.sendall:
+        old_id_list = [85119]
+    return old_id_list
+
+def writeDBList(list):
+    """Writes the old id list to the DB"""
+    newvalues = {"$set": { "idList": list }}
+    mycol.update_one({'_id':mongo_id}, newvalues)
+
 def notify(soup):
     """Uses Beautifulsoup to scrape zero post listings from the 
     OF sales forum, extract their IDs, compares the IDs with a stored ID list (last run), 
     notifies the user of new posts via email, and outputs the current ID list to a json.""" 
-    # link_list - list of all listing links on OF's first page.
-    # title_list - list of all listing titles on OF's first page.
-    # index_list - list of indexes where the listing post count is zero.
-    link_list, title_list, index_list = getLists(soup)
-    #new_id_list - list of listing IDs derived from new_title_list(from index_list).
-    #final_link_list - list of listing links after comparison with new_id_list and old_id_list.
-    #final_title_list - list of listing titles after comparison with new_id_list and old_id_list.
-    final_link_list, final_title_list, new_id_list = compareLists(link_list, title_list, index_list)
-    if final_link_list:
+    # post_list = list of all zero post objects
+    post_list = getLists(soup)
+    # final_post_list = final list of post objects after comparison with id list
+    # new_id_list = new id list to be dumped
+    final_post_list, new_id_list = compareLists(post_list)
+    if final_post_list:
         if args.sendall:
-             print('\nall zero-post listings [' + str(len(final_link_list)) + ']:')
+             print('\nall zero-post listings [' + str(len(final_post_list)) + '].')
         else:
-             print('\nnew listings found [' + str(len(final_link_list)) + ']:')
-        print(final_title_list)
-        print(final_link_list)
-        sendNotification(final_link_list, final_title_list, new_id_list)
-        log(new_id_list, True)
+             print('\nnew listings found [' + str(len(final_post_list)) + '].')
+        sendNotification(final_post_list, new_id_list)
+        # log(new_id_list, True)
     else:
         print('\nnothing to tell you.')
-        log(new_id_list, False)
+        # log(new_id_list, False)
     dumpList(new_id_list)
 
 def getSoup(url):
@@ -76,7 +100,7 @@ def getSoup(url):
     try:
         page = requests.get(url, timeout=10.0)
     except Exception as inst:
-        print("\nan error occured, scrape incomplete.")
+        print("\nof timed out, scrape incomplete.")
         print(inst)
         exit()
     soup = BeautifulSoup(page.content, 'html.parser')
@@ -85,76 +109,66 @@ def getSoup(url):
 def getLists(soup):
     """Scrapes the HTML for links and titles and returns 
     a list of links, a list of titles, and a list of indexes where a listing has zero posts."""
-    link_list = []
-    title_list = []
-    titles = soup.find_all(href=True)  # Get all href elements.
-    for i in titles:
+    post_list = []
+    rawPosts = soup.find_all(href=True)  # Get all href elements.
+    for i in rawPosts:
         if 'threads/' in i['href']:
-            link_list.append(i['href'])
-            title_list.append(i.string)
-    # post_list finds just listing post counts, index_list will hold the zero post indexes.
-    post_list = soup.find_all('dl', class_="major")
+            post = Post(i.string, i['href'])
+            post_list.append(post)
+
+    # index_list will hold the zero post indexes.
+    rawPosts = soup.find_all('dl', class_="major")
     index_list = []  # List of indexes for zero post listings.
     index_count = -1  # Used for items in index_list.
-    for i in post_list:
+    for i in rawPosts:
         item = i.find_all('dd')
         for v in item:
             index_count = index_count + 1
             if v.contents == ['0']: # If the listing has zero posts.
                 index_list.append(index_count)
-    return link_list, title_list, index_list
 
-def compareLists(link_list, title_list, index_list):
+    # Remove anything but 0 posts
+    final_post_list = []
+    for i in index_list:
+        final_post_list.append(post_list[i])
+    return final_post_list
+
+def compareLists(post_list):
     """Creates a new link and titles list of zero post listings 
     using index_list. A new ID list is created and is compared with the old ID list.
     IDs are used here as links and titles can change, but listing IDs will never change.
     Return new items in new lists."""
-    # Check for saved id.json and load for comparison. 
-    try:
-        with open('id.json') as f:
-            old_id_list = json.load(f)
-    except:
-        old_id_list = [85119] # This ID is ignored; pinned post ID.
-    # If send all is enabled.
-    if args.sendall:
-        old_id_list = [85119]
-    new_link_list = []
-    new_title_list = []
-    # Use index_list to create zero-post only lists.
-    for i in index_list:
-        new_link_list.append(link_list[i])
-        new_title_list.append(title_list[i])
+    old_id_list = getDBList();
+
     # Create a new_id_list by using new_link_list urls.
     new_id_list = []
     new_index_list = []
-    for i in new_link_list:
-        result = re.search('\.(.*?)/', i)
+    for i in post_list:
+        result = re.search('\.(.*?)/', i.link)
         new_id_list.append(int(result.group(1)))
     # Compare new_id_list with old_id_list and append new listing indexes to new_index_list.
     for i in new_id_list:
         if i not in old_id_list:
             new_index_list.append(new_id_list.index(i))
-    final_link_list = []
-    final_title_list = []
+    final_post_list = []
     # Use new_index_list indexes to create final_link_list and final_title_list.
     for i in new_index_list:
-        final_link_list.append(new_link_list[int(i)])
-        final_title_list.append(new_title_list[int(i)])
-    return final_link_list, final_title_list, new_id_list
+        final_post_list.append(post_list[int(i)])
+    return final_post_list, new_id_list
 
-def sendNotification(final_link_list, final_title_list, new_id_list):
+def sendNotification(final_post_list, new_id_list):
     """Creates and sends the html notification.
     The listing photos are added if possible."""
     html_list = []
-    difference = len(final_link_list)
+    difference = len(final_post_list)
     index_range = range(0, difference)
     ver = version
     for i in index_range:
         if i == difference:
             break
         # Variables for email.
-        title = final_title_list[i]
-        link = "https://omegaforums.net/" + final_link_list[i]
+        title = final_post_list[i].title
+        link = "https://omegaforums.net/" + final_post_list[i].link
         image_link = ""
         if not args.noimage:
             image_link = getImage(link)
@@ -262,14 +276,14 @@ def sendEmail(html):
         msg = MIMEMultipart('alternative')
         msg['Subject'] = "Notification"
         msg['From'] = email
-        msg['To'] = email
+        msg['To'] = "amritmanhas11@gmail.com"
         part1 = MIMEText(html, 'html')
         msg.attach(part1)
         mail = smtplib.SMTP('smtp-mail.outlook.com', 587)
         mail.ehlo()
         mail.starttls()
         mail.login(email, password)
-        mail.sendmail(email, email, msg.as_string())
+        mail.sendmail(email, "amritmanhas11@gmail.com", msg.as_string())
         mail.quit()
         print('\nnotification sent.')
 
@@ -281,14 +295,15 @@ def outputHTML(html):
     print("\noutput sent to output.html.")
 
 def dumpList(new_id_list):
-    """Dumps the new_id_list to a json file
+    """Dumps the new_id_list to the DB.
     for the next run. Ignore if new_id_list is null."""
     # Dump new list created.
+    # if new_id_list is not None and new_id_list != [85119]:
     if new_id_list:
-        with open('id.json', 'w') as f:
-            json.dump(new_id_list, f)
+        writeDBList(new_id_list)
 
 def log(id_list, isNew):
+    """Logs the id list"""
     x = datetime.datetime.now()
     f = open("log.txt", "a")
     date_time = x.strftime("%m/%d/%Y, %H:%M:%S")
