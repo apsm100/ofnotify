@@ -139,21 +139,17 @@ def compareLists(post_list):
     IDs are used here as links and titles can change, but listing IDs will never change.
     Return new items in new lists."""
     old_id_list = getDBList();
-
     # Create a new_id_list by using new_link_list urls.
     new_id_list = []
-    new_index_list = []
+    final_post_list = []
     for i in post_list:
         result = re.search('\.(.*?)/', i.link)
         new_id_list.append(int(result.group(1)))
-    # Compare new_id_list with old_id_list and append new listing indexes to new_index_list.
+    # Compare new_id_list with old_id_list and append new listings to final_post_list.
     for i in new_id_list:
         if i not in old_id_list:
-            new_index_list.append(new_id_list.index(i))
-    final_post_list = []
-    # Use new_index_list indexes to create final_link_list and final_title_list.
-    for i in new_index_list:
-        final_post_list.append(post_list[int(i)])
+            index_val = int(new_id_list.index(i))
+            final_post_list.append(post_list[index_val])
     return final_post_list, new_id_list
 
 def sendNotification(final_post_list, new_id_list):
